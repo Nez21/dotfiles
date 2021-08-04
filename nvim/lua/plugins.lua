@@ -1,0 +1,42 @@
+local vim = vim
+local execute = vim.api.nvim_command
+local fn = vim.fn
+local install_path = fn.stdpath('data')..'/site/pack/packer/opt/packer.nvim'
+if fn.empty(fn.glob(install_path)) > 0 then
+    execute('!git clone https://github.com/wbthomason/packer.nvim '..install_path)
+    execute 'packadd packer.nvim'
+end
+vim.cmd'packadd packer.nvim'
+local packer = require'packer'
+local util = require'packer.util'
+packer.init({
+  package_root = util.join_paths(vim.fn.stdpath('data'), 'site', 'pack')
+})
+
+packer.startup(function()
+	use 'wbthomason/packer.nvim'
+  	use 'rakr/vim-one'
+    use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+	use 'neovim/nvim-lspconfig'
+	use 'akinsho/nvim-toggleterm.lua'
+	use { 'glepnir/galaxyline.nvim', config = function() require'statusline' end, requires = {'kyazdani42/nvim-web-devicons'} }
+	use 'akinsho/nvim-bufferline.lua'
+	use 'kevinhwang91/rnvimr'
+	use 'nvim-lua/lsp_extensions.nvim'
+	use 'hrsh7th/nvim-compe'
+	use 'junegunn/fzf'
+	use 'junegunn/fzf.vim'
+	use 'kyazdani42/nvim-web-devicons'
+	use 'glepnir/dashboard-nvim'
+	use 'hrsh7th/vim-vsnip'
+	use 'nvim-lua/popup.nvim'
+	use 'norcalli/nvim-colorizer.lua'
+	use 'lewis6991/spellsitter.nvim'
+	use 'lukas-reineke/indent-blankline.nvim'
+	use 'b3nj5m1n/kommentary'
+	use 'nvim-lua/plenary.nvim'
+	use 'folke/todo-comments.nvim'
+	use 'onsails/lspkind-nvim'
+	use 'ray-x/lsp_signature.nvim'
+	use 'folke/which-key.nvim'
+end)
