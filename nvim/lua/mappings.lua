@@ -8,14 +8,14 @@ wk.register({
 			W = { "<cmd>lua vim.lsp.buf.workspace_symbol()<CR>", "Workspace Symbol" },
 			d = { "<cmd>lua vim.lsp.buf.definition()<CR>", "Definition" },
 			['['] = {	"<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", "Go to previous" },
-			[']'] = { "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", "Go to next" },
-			f = { "<cmd>lua vim.lsp.buf.formatting()<CR>", "Formatting" }
+			[']'] = { "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", "Go to next" }
     	},
 		['1'] = {
 			g = {
 				D = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Type Definition" }
 			}
 		},
+		F = { "<cmd>lua vim.lsp.buf.formatting()<CR>", "Format code" },
 		K = { "<cmd>lua vim.lsp.buf.hover()<CR>", "Hover" }
   	}, {
     	mode = "n",
