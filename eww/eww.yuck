@@ -1,0 +1,121 @@
+(deflisten workspace "scripts/workspace")
+(defwidget workspaces []
+  (literal :content workspace))
+
+(deflisten activewindow "scripts/window")
+(defwidget window []
+  (literal :content activewindow))
+
+(defwidget time []
+  (button :class "time" :tooltip "date +'%a %d'" :onclick "scripts/calendar" hour-min))
+(defpoll hour-min	:interval "1s"	"date '+%H:%M'")
+
+(defwidget battery []
+  (eventbox :onhover "eww update show-battery=true"
+    :onhoverlost "eww update show-battery=false"
+    (box :class "battery" :orientation "h" :space-evenly false :spacing 5
+      (label :wrap false :vexpand true :text "${captures(battery-metrics, '(.+),')[0][1]}")
+      (revealer
+        :transition "slideleft"
+        :reveal show-battery
+        :duration "550ms"
+        (label :class "text" :wrap false :vexpand true :text "${captures(battery-metrics, ',(\\d+)')[0][1]}%")))))
+(defpoll battery-metrics :interval "1s" "scripts/battery")
+(defvar show-battery false)
+
+(defwidget audio []
+  (eventbox :onhover "eww update show-audio=true"
+    :onhoverlost "eww update show-audio=false"
+    (box :class "audio" :orientation "h" :space-evenly false :spacing 5
+      (label :wrap false :vexpand true :text "${captures(audio-metrics, '(.+),')[0][1]}")
+      (revealer	:transition "slideleft"
+        :reveal show-audio
+        :duration "550ms"
+        (scale :class "slider"
+          :value "${captures(audio-metrics, ',(\\d+)')[0][1]}"
+          :tooltip "Volume: ${captures(audio-metrics, ',(\\d+)')[0][1]}%"
+          :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
+          :orientation "h"
+          :max 101
+        :min 0)))))
+(defpoll audio-metrics :interval "0.5s" "scripts/audio")
+(defvar show-audio false)
+
+(defwidget brightness []
+  (eventbox :onhover "eww update show-brightness=true"
+    :onhoverlost "eww update show-brightness=false"
+    (box :class "brightness" :orientation "h" :space-evenly false :spacing 5
+      (label :wrap false :vexpand true :text "󰃠")
+      (revealer	:transition "slideleft"
+        :reveal show-brightness
+        :duration "550ms"
+        (scale :class "slider"
+          :value brightness-val
+          :onchange "brightnessctl set {}%"
+          :tooltip "Brightness: ${brightness-val}%"
+          :orientation "h"
+          :max 101
+        :min 1)))))
+(defpoll brightness-val :interval "0.5s" "scripts/brightness")
+(defvar show-brightness false)
+
+(defwidget wifi []
+  (eventbox :onhover "eww update show-wifi-name=true"
+    :onhoverlost "eww update show-wifi-name=false"
+    (box :class "wifi" :orientation "h" :space-evenly false :spacing 5
+      (button wifi-icon)
+      (revealer	:transition "slideleft"
+        :reveal show-wifi-name
+        :duration "550ms"
+        (label :class "text" :wrap false :vexpand true :text wifi-name)))))
+(defpoll wifi-icon :interval "1s" "scripts/wifi icon")
+(defpoll wifi-name :interval "1s" "scripts/wifi name")
+(defvar show-wifi-name false)
+
+(defwidget bar []
+  (centerbox :orientation "h" :space-evenly false
+    (box :halign "start" :orientation "h" :space-evenly false (workspaces))
+    (box :halign "center"  :orientation "h" :space-evenly false (window))
+    (box :halign "end" :orientation "h" :space-evenly false :spacing 10 (time)
+      (box :class "metrics" :orientation "h" :space-evenly false :vexpand true :spacing 5
+        (wifi)
+        (audio)
+        (brightness)
+        (battery)))))
+
+(defwindow bar
+  :monitor   0
+  :exclusive true
+  :focusable false
+  :geometry
+  (geometry :x      "0%"
+    :y      "0%"
+    :width  "100%"
+  :anchor "top center")
+  (bar))
+
+(defwindow calendar
+  :monitor   0
+  :geometry (geometry :x "0"
+    :y "10px"
+    :width "270px"
+    :height "60px"
+  :anchor "top right")
+  (box :class "calendar-box"
+    (calendar :class "calendar"
+      :day calendar_day
+      :month calendar_month
+    :year calendar_year)))
+(defpoll calendar_day :interval "10h"
+"date '+%d'")
+(defpoll calendar_month :interval "10h"
+  "echo $(($(date +%m)-1))")
+(defpoll calendar_year :interval "10h"
+"date '+%Y'")
+
+(defwindow calendar-closer
+  :monitor 0
+  :geometry (geometry :width "100%" :height "100%")
+  :stacking "fg"
+  :focusable false
+  (eventbox :onclick "scripts/calendar"))

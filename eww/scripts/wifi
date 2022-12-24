@@ -1,0 +1,9 @@
+#!/bin/sh
+if [[ $1 == "icon" ]]; then
+   [ $(cat /sys/class/net/w*/operstate) = down ] && echo "󰤭" && exit
+   echo "󰤨"
+fi
+
+if [[ $1 == "name" ]]; then
+   echo $(nmcli | grep "^wlo1" | sed -e 's,.*connected to \(.*\),\1,')
+fi

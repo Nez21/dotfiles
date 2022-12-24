@@ -1,0 +1,14 @@
+#!/bin/sh
+activewindow() {
+   if [[ ${1:0:12} == "activewindow" ]]; then
+      export class=$(echo "${1:14}" | cut -d "," -f 1)
+      export title=$(echo "${1:14}" | cut -d "," -f 2)
+   fi
+
+   echo "(label :class \"window-title\" :wrap false :vexpand true :text \"$title\")"
+} 
+
+socat -u UNIX-CONNECT:/tmp/hypr/"$HYPRLAND_INSTANCE_SIGNATURE"/.socket2.sock - | 
+   while read -r event; do 
+      activewindow "$event"
+   done

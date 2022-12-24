@@ -1,0 +1,10 @@
+#!/bin/sh
+LOCK_FILE="$HOME/.cache/eww-calendar.lock"
+   
+if [[ ! -f "$LOCK_FILE" ]]; then
+   touch "$LOCK_FILE"
+   eww open-many calendar-closer calendar
+else
+   eww close calendar calendar-closer
+   rm "$LOCK_FILE"
+fi

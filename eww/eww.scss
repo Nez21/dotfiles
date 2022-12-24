@@ -1,0 +1,131 @@
+* {
+   all: unset;
+}
+
+.workspaces {
+   background-color: white;
+   border-radius: 999em;
+   padding: 3px 4px;
+}
+
+.workspace {
+   color: black;
+   font-size: 12px;
+   padding: 3px 6px;
+   border-radius: 999em;
+
+   &.unoccupied {
+      color: #8a9199;
+   }
+
+   &.occupied {
+      color: white;
+      background-color: #399ee6;
+   }
+
+   &.focused {
+      color: white;
+      background-color: #fa8d3e;
+   }
+}
+
+.window-title {
+   font-weight: 500;
+}
+
+.time {
+   font-weight: 700;
+}
+
+.metrics {
+   background-color: white;
+   border-radius: 999em;
+   padding: 3px 10px;
+   font-size: 16px;
+
+   .text {
+      font-size: 12px;
+   }
+
+   .wifi {
+      color: #ff7383;
+   }
+
+   .audio {
+      color: #399ee6;
+      font-size: 20px;
+
+      scale trough highlight {
+         all: unset;
+         background-color: #399ee6;
+         border-radius: 999em;
+      }
+      scale trough {
+         all: unset;
+         background-color: #f8f9fa;
+         min-width: 60px;
+         min-height: 5px;
+         border-radius: 999em;
+      }
+   }
+
+   .brightness {
+      color: #faae49;
+
+      scale trough highlight {
+         all: unset;
+         background-color: #faae49;
+         border-radius: 999em;
+      }
+      scale trough {
+         all: unset;
+         background-color: #f8f9fa;
+         min-width: 60px;
+         min-height: 5px;
+         border-radius: 999em;
+      }
+   }
+
+   .battery {
+      color: #4cbf99;
+   }
+}
+
+.calendar-box {
+   color: #5c6166;
+   background-color: rgba($color: #f8f9fa, $alpha: 1);
+   font-family: Comic Mono;
+   font-weight: 700;
+   border-radius: 10px;
+
+   .calendar {
+      padding: 0.5rem 0.25rem 0rem;
+   }
+}
+
+calendar:selected {
+   color: #fa8d3e;
+}
+
+calendar.header {
+   color: #399ee6;
+   font-weight: bold;
+}
+
+calendar.button {
+   color: #399ee6;
+}
+
+calendar.highlight {
+   color: #fa8d3e;
+   font-weight: bold;
+}
+
+calendar:indeterminate {
+   color: #8a9199;
+}
+
+tooltip {
+   background-color: rgba($color: #f8f9fa, $alpha: 0.3);
+   border-radius: 999em;
+}
