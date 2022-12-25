@@ -1,0 +1,6 @@
+#!/bin/sh
+fullscreen=$(hyprctl activewindow | grep "fullscreen:" | awk '{print $2}')
+
+if [[ ($1 == '--force') || ($fullscreen == '0') ]]; then
+   hyprctl dispatch killactive 0
+fi

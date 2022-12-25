@@ -1,17 +1,22 @@
 #!/bin/sh
 volume=$(wpctl get-volume @DEFAULT_SINK@ |  sed -e 's,.*\.\([0-9][0-9]*\).*,\1,')
-mute=$(wpctl get-volume @DEFAULT_SINK@ | awk -F '[][]' '{print $2}')
 
-if [[ ($mute == "MUTED") ]]; then
-   echo "󰝟,0" && exit
-elif [[ (($volume -gt 60) || ($volume -eq 60)) ]]; then
-   export icon="󰕾"
-elif [[ ($volume -lt 60) && (($volume -gt 30) || ($volume -eq 30)) ]]; then
-   export icon="󰖀"
-elif [[ ($volume -gt 0) ]]; then
-   export icon="󰕿"
-else
-   export icon="󰝟"
+if [[ $1 == "icon" ]]; then
+   mute=$(wpctl get-volume @DEFAULT_SINK@ | awk -F '[][]' '{print $2}')
+
+   if [[ $mute == "MUTED" ]]; then
+      echo "󰝟"
+   elif [[ (($volume -gt 60) || ($volume -eq 60)) ]]; then
+      echo "󰕾"
+   elif [[ ($volume -lt 60) && (($volume -gt 30) || ($volume -eq 30)) ]]; then
+      echo "󰖀"
+   elif [[ ($volume -gt 0) ]]; then
+      echo "󰕿"
+   else
+      echo "󰝟"
+   fi
 fi
 
-echo $icon,$volume
+if [[ $1 == "volume" ]]; then
+   echo $volume
+fi

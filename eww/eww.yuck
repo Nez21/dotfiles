@@ -14,31 +14,33 @@
   (eventbox :onhover "eww update show-battery=true"
     :onhoverlost "eww update show-battery=false"
     (box :class "battery" :orientation "h" :space-evenly false :spacing 5
-      (label :wrap false :vexpand true :text "${captures(battery-metrics, '(.+),')[0][1]}")
+      (label :wrap false :vexpand true :text battery-icon)
       (revealer
         :transition "slideleft"
         :reveal show-battery
         :duration "550ms"
-        (label :class "text" :wrap false :vexpand true :text "${captures(battery-metrics, ',(\\d+)')[0][1]}%")))))
-(defpoll battery-metrics :interval "1s" "scripts/battery")
+        (label :class "text" :wrap false :vexpand true :text "${battery-percent}%")))))
+(defpoll battery-icon :interval "1s" "scripts/battery icon")
+(defpoll battery-percent :interval "1s" "scripts/battery percent")
 (defvar show-battery false)
 
 (defwidget audio []
   (eventbox :onhover "eww update show-audio=true"
     :onhoverlost "eww update show-audio=false"
     (box :class "audio" :orientation "h" :space-evenly false :spacing 5
-      (label :wrap false :vexpand true :text "${captures(audio-metrics, '(.+),')[0][1]}")
-      (revealer	:transition "slideleft"
+      (label :wrap false :vexpand true :text audio-icon)
+      (revealer :transition "slideleft"
         :reveal show-audio
         :duration "550ms"
         (scale :class "slider"
-          :value "${captures(audio-metrics, ',(\\d+)')[0][1]}"
-          :tooltip "Volume: ${captures(audio-metrics, ',(\\d+)')[0][1]}%"
+          :value audio-volume
+          :tooltip "Volume: $audio-volume"
           :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
           :orientation "h"
           :max 101
         :min 0)))))
-(defpoll audio-metrics :interval "0.5s" "scripts/audio")
+(defpoll audio-icon :interval "0.5s" "scripts/audio icon")
+(defpoll audio-volume :interval "0.5s" "scripts/audio volume")
 (defvar show-audio false)
 
 (defwidget brightness []
@@ -109,7 +111,7 @@
 (defpoll calendar_day :interval "10h"
 "date '+%d'")
 (defpoll calendar_month :interval "10h"
-  "echo $(($(date +%m)-1))")
+"date '+%m'")
 (defpoll calendar_year :interval "10h"
 "date '+%Y'")
 

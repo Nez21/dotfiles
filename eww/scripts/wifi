@@ -1,7 +1,10 @@
 #!/bin/sh
 if [[ $1 == "icon" ]]; then
-   [ $(cat /sys/class/net/w*/operstate) = down ] && echo "󰤭" && exit
-   echo "󰤨"
+   if [[ $(cat /sys/class/net/w*/operstate) = down ]]; then
+      echo "󰤭"
+   else
+      echo "󰤨"
+   fi
 fi
 
 if [[ $1 == "name" ]]; then

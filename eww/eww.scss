@@ -23,9 +23,14 @@
       background-color: #399ee6;
    }
 
-   &.focused {
+   &.focused_eDP_1 {
       color: white;
       background-color: #fa8d3e;
+   }
+
+   &.focused_HDMI_A_1 {
+      color: white;
+      background-color: #4cbf99;
    }
 }
 
