@@ -2,95 +2,108 @@
 icons=(一 二 三 四 五 六 七 八 九 〇)
 
 for row in $(echo $(hyprctl workspaces -j) | jq -r '.[] | @base64'); do
-   c=$(echo $row | base64 --decode | jq -r ${1})
-   num=$(echo $c | jq '.id')
-   monitor=$(echo $c | jq -r '.monitor')
+   obj=$(echo $row | base64 --decode | jq -r ${1})
+   workspace=$(echo $obj | jq '.id')
+   monitor=$(echo $obj | jq -r '.monitor')
    monitor="${monitor//-/_}"
 
-   export s"$num"="occupied"
-   export mo"$num"="$monitor"
+   export state_"$workspace"="occupied"
+   export map_workspace_to_monitor_"$workspace"="$monitor"
 done
 
 for row in $(echo $(hyprctl monitors -j) | jq -r '.[] | @base64'); do
-   c=$(echo $row | base64 --decode | jq -r ${1})
-   monitor=$(echo $c | jq -r '.name')
+   obj=$(echo $row | base64 --decode | jq -r ${1})
+   monitor=$(echo $obj | jq -r '.name')
    monitor="${monitor//-/_}"
-   num=$(echo $c | jq '.activeWorkspace.id')
-   focused=$(echo $c | jq -r '.focused')
+   workspace=$(echo $obj | jq '.activeWorkspace.id')
+   is_monitor_focused=$(echo $obj | jq -r '.focused')
 
-   if [[ $focused == "true" ]]; then
-      export fm="$monitor"
+   if [[ $js_monitor_focused == "true" ]]; then
+      export focusing_monitor="$monitor"
    fi
    
-   export s"$num"="focused_$monitor"
-   export fw"$monitor"="$num"
+   export state_"$workspace"="focused_$monitor"
+   export map_monitor_to_focusing_workspace_"$monitor"="$workspace"
 done
 
-echo $fm
-
 workspaces() {
-   if [[ ${1:0:16} == "destroyworkspace" ]]; then
-      changed=1
-      num="${1:18}"
-
-      unset -v s"$num"
-   fi
-
    if [[ ${1:0:10} == "focusedmon" ]]; then
       changed=1
-      monitor=$(echo ${1:10} | cut -d "," -f 2)
+      monitor=$(echo ${1:12} | cut -d "," -f 1)
       monitor="${monitor//-/_}"
 
-      export fm="$monitor"
-   fi
-
-   if [[ ${1:0:15} == "createworkspace" ]]; then
-      changed=1
-      num="${1:17}"
-      temp="s$num"
-
-      if [[ ${!temp} != focused* ]]; then
-         export s"$num"="occupied"
-      fi
-      
-      export mo"$num"="$fm"
-   fi
-   
-   if [[ ${1:0:9} == "workspace" ]]; then
-      changed=1
-      num="${1:11}"
-      temp="mo${num}"
-      monitor="${!temp}"
-      temp=fw"$monitor" 
-      last="${!temp}"
-
-      export s"$last"="occupied"
-      export fw"$monitor"="$num"
-      export s"$num"="focused_$monitor"
+      export focusing_monitor="$monitor"
    fi
 
    if [[ ${1:0:13} == "moveworkspace" ]]; then
       changed=1
-      num=$(echo ${1:13} | cut -d "," -f 1)
-      monitor=$(echo ${1:13} | cut -d "," -f 2)
+      workspace=$(echo ${1:15} | cut -d "," -f 1)
+      monitor=$(echo ${1:15} | cut -d "," -f 2)
       monitor="${monitor//-/_}"
+      temp=map_monitor_to_focusing_workspace_"$monitor" 
+      last_workspace="${!temp}"
+      
+      export map_monitor_to_focusing_workspace_"$monitor"="$workspace"
+      export state_"$workspace"="focused_$monitor"
+      export state_"$last_workspace"="occupied"
+      export map_workspace_to_monitor_"$workspace"="$monitor"
+   fi
 
-      export mo"$num"=$monitor
+   if [[ ${1:0:15} == "createworkspace" ]]; then
+      changed=1
+      workspace="${1:17}"
+      temp="state_$workspace"
+
+      if [[ ${!temp} != focused* ]]; then
+         export state_"$workspace"="occupied"
+      fi
+
+      export map_workspace_to_monitor_"$workspace"="$focusing_monitor"
+   fi
+   
+   if [[ ${1:0:9} == "workspace" ]]; then
+      changed=1
+      workspace="${1:11}"
+      temp=map_workspace_to_monitor_"$workspace"
+      monitor=${!temp}
+      
+      if [[ $monitor == '' ]]; then
+         monitor="$focusing_monitor"
+      fi
+
+      temp=map_monitor_to_focusing_workspace_"$monitor" 
+      last_workspace="${!temp}"
+      temp=state_"$last_workspace"
+  
+      if [[ ${!temp} == focused_$monitor ]]; then
+         export state_"$last_workspace"="occupied"
+      fi
+
+      export map_monitor_to_focusing_workspace_"$monitor"="$workspace"
+      export state_"$workspace"="focused_$monitor"
+   fi
+
+   if [[ ${1:0:16} == "destroyworkspace" ]]; then
+      changed=1
+      workspace="${1:18}"
+
+      unset -v state_"$workspace"
+      unset -v map_workspace_to_monitor_"$workspace"
    fi
 
    [ $changed == "1" ] && echo \
       "(eventbox :onscroll \"echo {} | sed -e 's/up/-1/g' -e 's/down/+1/g' | xargs hyprctl dispatch workspace\" \
          (box :class \"workspaces\" :orientation \"h\" :spacing 5 \
-            (button :onclick \"hyprctl dispatch workspace 1\"  :class \"workspace ${s1-unoccupied}\" \"${icons[0]}\") \
-            (button :onclick \"hyprctl dispatch workspace 2\"  :class \"workspace ${s2-unoccupied}\" \"${icons[1]}\") \
-            (button :onclick \"hyprctl dispatch workspace 3\"  :class \"workspace ${s3-unoccupied}\" \"${icons[2]}\") \
-            (button :onclick \"hyprctl dispatch workspace 4\"  :class \"workspace ${s4-unoccupied}\" \"${icons[3]}\") \
-            (button :onclick \"hyprctl dispatch workspace 5\"  :class \"workspace ${s5-unoccupied}\" \"${icons[4]}\") \
-            (button :onclick \"hyprctl dispatch workspace 6\"  :class \"workspace ${s6-unoccupied}\" \"${icons[5]}\") \
-            (button :onclick \"hyprctl dispatch workspace 7\"  :class \"workspace ${s7-unoccupied}\" \"${icons[6]}\") \
-            (button :onclick \"hyprctl dispatch workspace 8\"  :class \"workspace ${s8-unoccupied}\" \"${icons[7]}\") \
-            (button :onclick \"hyprctl dispatch workspace 9\"  :class \"workspace ${s9-unoccupied}\" \"${icons[8]}\") \
-            (button :onclick \"hyprctl dispatch workspace 10\" :class \"workspace ${s10-unoccupied}\" \"${icons[9]}\") \
+            (button :onclick \"hyprctl dispatch workspace 1\"  :class \"workspace $state_1\" \"${icons[0]}\") \
+            (button :onclick \"hyprctl dispatch workspace 2\"  :class \"workspace $state_2\" \"${icons[1]}\") \
+            (button :onclick \"hyprctl dispatch workspace 3\"  :class \"workspace $state_3\" \"${icons[2]}\") \
+            (button :onclick \"hyprctl dispatch workspace 4\"  :class \"workspace $state_4\" \"${icons[3]}\") \
+            (button :onclick \"hyprctl dispatch workspace 5\"  :class \"workspace $state_5\" \"${icons[4]}\") \
+            (button :onclick \"hyprctl dispatch workspace 6\"  :class \"workspace $state_6\" \"${icons[5]}\") \
+            (button :onclick \"hyprctl dispatch workspace 7\"  :class \"workspace $state_7\" \"${icons[6]}\") \
+            (button :onclick \"hyprctl dispatch workspace 8\"  :class \"workspace $state_8\" \"${icons[7]}\") \
+            (button :onclick \"hyprctl dispatch workspace 9\"  :class \"workspace $state_9\" \"${icons[8]}\") \
+            (button :onclick \"hyprctl dispatch workspace 10\" :class \"workspace $state_10\" \"${icons[9]}\") \
          ) \
       )"
 }
